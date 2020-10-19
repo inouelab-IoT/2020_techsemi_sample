@@ -8,7 +8,7 @@ import json
 from ast import literal_eval
 
 # file open
-MQTT_FILE = "/home/pi/002_AWSIoT/aws_iot_mqtt.json"
+MQTT_FILE = "../002_AWSIoT/aws_iot_mqtt.json"
 mqtt_broker = open(MQTT_FILE).read()
 mqtt_dict = literal_eval(mqtt_broker)
 
@@ -44,7 +44,7 @@ def onSubscribe(client, userdata, message):
     print("====================================")
     if(message.topic== clientId + "/alert/fromDevice"):
         messegeJson=json.loads(message.payload.decode('utf-8'))
-        send(PUB_TOPIC_2, messegeJson) #PUB_TOPIC_2 = clientId + "/alert/fromServer" 
+        send(PUB_TOPIC_2, messegeJson)
 
 def send(topic,message):
     print("= Publish ========================")

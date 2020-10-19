@@ -1,0 +1,58 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://unpkg.com/obniz@3.8.0/obniz.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div id="obniz-debug"></div>
+    <div>
+        Pin Connection
+        <ul>
+            <li>S : 0</li>
+            <li>+ : 1</li>
+            <li>- : 2</li>
+        </ul>
+    </div>
+    <div id=data></div>
+    <script>
+        var obniz = new Obniz("0000-0000"); //Obniz ID
+        var gnd = 2;　
+        var _5V = 1;
+        var volRead = 0;
+        var interval = 1000 //ms
+
+        obniz.onconnect = async function() {
+            //Pin1を5V,Pin2をGNDに
+            obniz.getIO(_5V).output("5v");
+            obniz.getIO(gnd).output(false);
+
+            //ループ処理を行う
+            setInterval(async() => {
+                var Voltage = 0;
+                //10回Pinの値を取得し、平均を取る
+                for (var num = 0; num < 10; num++) {
+                    Voltage += await obniz.getAD(volRead).getWait();
+                }
+                Voltage /= 10;
+                var level = Math.ceil(1024 - (Voltage / 5 * 1024));
+
+                //値をオブジェクトに格納
+                value = {
+                    voltage: Voltage,
+                    level: level
+                }
+                console.log(value);
+
+                //画面に出力
+                document.getElementById("data").innerHTML = "電圧 : " + Voltage + " V<br>明るさレベル : " + level + " (Max:1024)";
+            }, interval);
+        }
+    </script>
+</body>
+
+</html>

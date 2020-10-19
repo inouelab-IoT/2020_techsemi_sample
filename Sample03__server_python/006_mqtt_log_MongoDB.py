@@ -12,7 +12,7 @@ import time
 import json
 
 # file open
-MQTT_FILE = "/home/pi/002_AWSIoT/aws_iot_mqtt.json"
+MQTT_FILE = "../002_AWSIoT/aws_iot_mqtt.json"
 mqtt_broker = open(MQTT_FILE).read()
 mqtt_dict = literal_eval(mqtt_broker)
 
@@ -28,9 +28,13 @@ secretKey = mqtt_dict['SECRET_KEY']
 topic = clientId + "/#"
 
 # mongoDB 設定
-con = MongoClient()
-db = con.mqtt # mqtt データベース
-col = db.log # log コレクション
+host = '127.0.0.1'
+port = 27017
+db = 'DB_name' #Your DB name
+#コネクション作成
+client = MongoClient(host, port)
+#データベースからtestコレクションを取得
+col = client[db]['mqtt_log']
 
 #Subscribe
 def onSubscribe(client, userdata, message):
@@ -41,7 +45,7 @@ def onSubscribe(client, userdata, message):
     payload_DICT = json.loads(message.payload.decode('utf-8'))
     payload_DICT["topic"] = message.topic
     print(payload_DICT)
-    col.insert(payload_DICT) # mongoDBへ保存
+    col.insert(payload_DICT)
     print("====================================")
 
 #Main

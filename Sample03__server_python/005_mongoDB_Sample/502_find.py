@@ -4,14 +4,15 @@
 from pymongo import MongoClient
 from datetime import datetime
 
+host = '127.0.0.1'
+port = 27017
+db = 'DB_name' #Your DB name
 #コネクション作成
-con = MongoClient()
+client = MongoClient(host, port)
 
-#コネクションからsampleデータベースを取得
-db = con.sample
+#データベースからtestコレクションを取得
+col = client[db]['test']
 
-#sampleデータベースからfooコレクションを取得
-col = db.foo
 
 print("========find_one========")
 print(col.find_one())

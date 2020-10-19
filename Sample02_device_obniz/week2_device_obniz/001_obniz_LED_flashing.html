@@ -1,0 +1,66 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <script src="https://unpkg.com/obniz@3.8.0/obniz.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div id="obniz-debug"></div>
+    <h3>Connect From Your Browser</h3>
+    <button class="btn btn-primary" id="on">LED ON</button>
+    <button class="btn btn-primary" id="off">LED OFF</button>
+    <button class="btn btn-primary" id="brightness">明るさ(％)</button>
+    <input type="pwm" id="pwm" value="100" />
+    <div id="print"></div>
+
+    <div>Demo Pin Assign</div>
+    <ul>
+        <li>io0: LED anode</li>
+        <li>io1: LED cathode</li>
+    </ul>
+
+    <script>
+        var obniz = new Obniz("0000-0000"); //Obniz ID
+        var anode = 0;
+        var cathode = 1;
+        var pwm_freq = 1000 // 10k hz
+        var pwm_duty = 100 // 100%
+
+        obniz.onconnect = async function() {
+            obniz.getIO(cathode).output(false);
+
+            var pwm = obniz.getFreePwm();
+            pwm.start({
+                io: anode
+            });
+
+            document.getElementById('on').addEventListener('click', function(e) {
+                obniz.display.clear();
+                obniz.display.print("ON");
+                obniz.display.print("brightness : " + pwm_duty + " %");
+                pwm.start({
+                    io: anode
+                });
+                pwm.freq(pwm_freq);
+                pwm.duty(pwm_duty);
+            });
+
+            document.getElementById('off').addEventListener('click', function(e) {
+                obniz.display.clear();
+                obniz.display.print("OFF");
+                pwm.end()
+            });
+
+
+            document.getElementById("pwm").onchange = function() {
+                pwm_duty = document.getElementById("pwm").value;
+                pwm.duty(pwm_duty)
+            };
+        };
+    </script>
+</body>
+
+</html>

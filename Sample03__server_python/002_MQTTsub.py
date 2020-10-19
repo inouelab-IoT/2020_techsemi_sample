@@ -7,7 +7,7 @@ from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 from ast import literal_eval
 
 # file open
-MQTT_FILE = "/home/pi/002_AWSIoT/aws_iot_mqtt.json"
+MQTT_FILE = "../002_AWSIoT/aws_iot_mqtt.json"
 mqtt_broker = open(MQTT_FILE).read()
 mqtt_dict = literal_eval(mqtt_broker)
 

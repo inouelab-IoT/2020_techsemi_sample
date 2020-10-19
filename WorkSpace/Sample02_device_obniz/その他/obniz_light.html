@@ -1,0 +1,43 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://obniz.io/js/jquery-3.2.1.min.js"></script>
+    <script
+      src="https://unpkg.com/obniz@3.x/obniz.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div id="obniz-debug"></div>
+    <h2>Light Sensor</h2>
+    <ul>
+      <li>Voltageが2以下ならば、光が強い/明るい</li>
+      <li>Voltageが2以上ならば、光が弱い/暗い</li>
+    </ul>
+    <strong>Hello</strong>
+    <script>
+      var obniz = new Obniz("6893-8725");
+      obniz.onconnect = async function() {
+        obniz.io2.output(true);
+        obniz.io0.output(false);
+
+        obniz.display.clear();
+        obniz.display.print("Hello World!");
+
+
+        obniz.ad1.start((voltage) => {
+          if (voltage < 2) {
+            obniz.display.clear();
+            obniz.display.print("Strong!!  "+voltage);     
+          } else {
+            obniz.display.clear();
+            obniz.display.print("Weak..  "+voltage);
+          }
+          $("strong").text("Voltage: "+voltage)
+      });
+    }
+    
+    </script>
+  </body>
+</html>

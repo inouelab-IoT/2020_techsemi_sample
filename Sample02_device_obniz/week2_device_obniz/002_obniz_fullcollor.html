@@ -1,0 +1,60 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://obniz.io/js/jquery-3.2.1.min.js"></script>
+    <script src="https://unpkg.com/obniz@3.x/obniz.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div id="obniz-debug"></div>
+    <h2>Color Picker with LED</h2>
+    R G B の順 *0x 16進数の意　<br>
+    <input type="Red" value="0x00" id="Red" />
+    <input type="Green" value="0xFF" id="Green" />
+    <input type="Blue" value="0x00" id="Blue" />
+    <button class="btn btn-primary" id="on">LED ON</button>
+    <button class="btn btn-primary" id="off">LED OFF</button> Pin Connection
+    <ul>
+        <li>r : 0</li>
+        <li>g : 2</li>
+        <li>b : 3</li>
+        <li>cathode : 1</li>
+    </ul>
+
+    <script src="code.js"></script>
+
+    <script>
+        var obniz = new Obniz("0000-0000"); //Obniz ID
+        var anode_r = 0;
+        var anode_g = 2;
+        var anode_b = 3;
+        var cathode = 1;
+
+        obniz.onconnect = async function() {
+            var led = obniz.wired("FullColorLED", {
+                r: anode_r,
+                g: anode_g,
+                b: anode_b,
+                common: cathode,
+                commonType: 'cathode_common'
+            });
+
+            document.getElementById('on').addEventListener('click', function(e) {
+                led.rgb(document.getElementById("Red").value, document.getElementById("Green").value, document.getElementById("Blue").value);
+                obniz.display.clear();
+                obniz.display.print("ON");
+                obniz.display.print("r, g, b : " + document.getElementById("Red").value + "," + document.getElementById("Green").value + "," + document.getElementById("Blue").value);
+            });
+
+            document.getElementById('off').addEventListener('click', function(e) {
+                led.rgb(0x00, 0x00, 0x00);
+                obniz.display.clear();
+                obniz.display.print("OFF");
+            });
+        }
+    </script>
+</body>
+
+</html>

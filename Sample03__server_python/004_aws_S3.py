@@ -4,17 +4,27 @@ import logging
 import boto3
 from botocore.exceptions import ClientError
 import os
+from ast import literal_eval
 
-groupname ='YOUR_GROUP_NAME' # グループ名を入力
+# file open
+MQTT_FILE = "../002_AWSIoT/aws_iot_mqtt.json"
+mqtt_broker = open(MQTT_FILE).read()
+mqtt_dict = literal_eval(mqtt_broker)
+
+# 認証情報取得 
+clientId = mqtt_dict['CLIENT_ID']
+accessId = mqtt_dict['ACCESS_ID']
+secretKey = mqtt_dict['SECRET_KEY']
 
 try:
     bucketname = "ediot"
-    KeyPrefix = groupname + '/facedetect'
+    KeyPrefix = clientId
     resource = boto3.resource(
         's3',
         region_name='ap-northeast-1',
-        aws_access_key_id='YOUR_ACCESS_KEY', # AWS のアクセスキー
-        aws_secret_access_key='YOUR_SECRET_KEY' #　AWS のシークレットキー
+        # Hard coded strings as credentials, not recommended.
+        aws_access_key_id=accessId,
+        aws_secret_access_key=secretKey
     )
 except ClientError as e:
         logging.error(e)
@@ -25,8 +35,7 @@ for o in objs.get('Contents'):
     key = o.get('Key')
     if key[-4:]=='.jpg':
         print(key)
-        os.makedirs(os.path.dirname(key), exist_ok=True)
-        bucket.download_file(key, key) # download
+        bucket.download_file(key, os.path.basename(key)) # download
 
 #download
 #bucket.upload_file('DownloadするS3のpath', '保存先のpath')

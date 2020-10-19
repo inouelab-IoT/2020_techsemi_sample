@@ -1,0 +1,83 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://unpkg.com/obniz@3.8.0/obniz.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div id="obniz-debug"></div>
+    <div>
+        Pin Connection
+        <ul>
+            <li>SDA : 0</li>
+            <li>SCL : 1</li>
+            <li>VIN : 2</li>
+            <li>GND : 3</li>
+
+        </ul>
+    </div>
+    <div id=data></div>
+    <script>
+        var obniz = new Obniz("0000-0000");//Obniz ID
+        const sda = 0;
+        const scl = 1;
+
+        console.log("sensor data{sda:" + sda + "scl:" + scl + "}");
+
+        obniz.onconnect = async function() {
+            //
+            obniz.io3.output("3v");
+            obniz.io2.output(false);
+            //BME280へのI2C通信を開始
+            var i2c = obniz.getFreeI2C();
+            i2c.start({
+                mode: "master",
+                sda: sda,
+                scl: scl,
+                clock: 100000
+            });
+            var bme280 = obniz.wired("BME280", {
+                i2c: i2c
+            });
+            await bme280.applyCalibration();
+            //BME280からデータを取得
+            const obj = await bme280.getAllWait();
+            const temperature = await obj.temperature;
+            const humidity = await obj.humidity;
+            const air = await obj.pressure;
+
+            value = {
+                temperature: temperature,
+                humidity: humidity,
+                airPressure: air
+            }
+            console.log(value);
+            //画面に出力
+            document.getElementById("data").innerHTML="気温 : "+temperature+" ℃<br>湿度 : "+humidity+" % <br>気圧 : "+air+" hPa";
+
+            //5秒(5000ms)ごとに更新
+            setInterval(async ()=>{
+            const obj = await bme280.getAllWait();
+            const temperature = await obj.temperature;
+            const humidity = await obj.humidity;
+            const air = await obj.pressure;
+
+            value = {
+                temperature: temperature,
+                humidity: humidity,
+                airPressure: air
+            }
+            console.log(value);
+            //画面に出力
+            document.getElementById("data").innerHTML="気温 : "+temperature+" ℃<br>湿度 : "+humidity+" % <br>気圧 : "+air+" hPa";
+
+            },5000);
+        }
+    </script>
+</body>
+
+</html>
