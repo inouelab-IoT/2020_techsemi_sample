@@ -8,7 +8,8 @@ import json
 from ast import literal_eval
 
 # file open
-MQTT_FILE = "../002_AWSIoT/aws_iot_mqtt.json"
+gcpusername = "YOURE_GCP_USER_NAME" #GCPのユーザ名
+MQTT_FILE = "home/"+ gcpusername + "/002_AWSIoT/aws_iot_mqtt.json"
 mqtt_broker = open(MQTT_FILE).read()
 mqtt_dict = literal_eval(mqtt_broker)
 

@@ -1,6 +1,10 @@
 import pandas as pd
 from pymongo import MongoClient
 
+gcpusername = "YOURE_GCP_USER_NAME" #GCPのユーザ名
+# mongoDB 設定
+dbname = gcpusername + 'DB' #Your DB name
+collectionname = 'mqtt_log'
 
 def _connect_mongo(host, port, username, password, db):
     """ A util for making a connection to mongo """
@@ -32,5 +36,5 @@ def read_mongo(db, collection, query={}, host='localhost', port=27017, username=
     return df
 
 if __name__ == '__main__':
-    df = read_mongo('mqtt', 'log', {'topic':'inouelabiot/GPS'})
+    df = read_mongo(dbname, collectionname, {'topic':gcpusername + '/GPS'})
     df.to_csv('1.csv', index=False)

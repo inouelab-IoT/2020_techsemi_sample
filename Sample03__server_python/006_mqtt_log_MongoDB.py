@@ -12,14 +12,15 @@ import time
 import json
 
 # file open
-MQTT_FILE = "../002_AWSIoT/aws_iot_mqtt.json"
+gcpusername = "YOURE_GCP_USER_NAME" #GCPのユーザ名
+MQTT_FILE = "home/"+ gcpusername + "/002_AWSIoT/aws_iot_mqtt.json"
 mqtt_broker = open(MQTT_FILE).read()
 mqtt_dict = literal_eval(mqtt_broker)
 
 # 認証情報取得 
 clientId = mqtt_dict['CLIENT_ID']
 endPoint = mqtt_dict['ENDPOINT']
-port = mqtt_dict['PORT'] # Cognito経由の認証では、Websocket SigV4　しか使用できない
+mqttport = mqtt_dict['PORT'] # Cognito経由の認証では、Websocket SigV4　しか使用できない
 rootCA = mqtt_dict['ROOT_CA']
 accessId = mqtt_dict['ACCESS_ID']
 secretKey = mqtt_dict['SECRET_KEY']
@@ -28,13 +29,14 @@ secretKey = mqtt_dict['SECRET_KEY']
 topic = clientId + "/#"
 
 # mongoDB 設定
-host = '127.0.0.1'
-port = 27017
-db = 'DB_name' #Your DB name
+mongohost = '127.0.0.1'
+mongoport = 27017
+db = clientId + 'DB' #Your DB name
 #コネクション作成
-client = MongoClient(host, port)
+mongoclient = MongoClient(mongohost, mongoport)
 #データベースからtestコレクションを取得
-col = client[db]['mqtt_log']
+col = mongoclient[db]['mqtt_log']
+
 
 #Subscribe
 def onSubscribe(client, userdata, message):
@@ -45,22 +47,23 @@ def onSubscribe(client, userdata, message):
     payload_DICT = json.loads(message.payload.decode('utf-8'))
     payload_DICT["topic"] = message.topic
     print(payload_DICT)
-    col.insert(payload_DICT)
+    col.insert_one(payload_DICT)
     print("====================================")
 
 #Main
 def main():
-    client = AWSIoTMQTTClient(clientId, useWebsocket=True) # Websocket SigV4を利用
-    client.configureIAMCredentials(accessId, secretKey)
-    client.configureCredentials(rootCA) # ルート証明書の設定が必要
-    client.configureEndpoint(endPoint, port)
-    client.configureAutoReconnectBackoffTime(1, 32, 20)
-    client.configureOfflinePublishQueueing(-1)
-    client.configureDrainingFrequency(2)
-    client.configureConnectDisconnectTimeout(10)
-    client.configureMQTTOperationTimeout(5)
-    client.connect()
-    client.subscribe(topic, 1, onSubscribe)
+    mqttclient = AWSIoTMQTTClient(clientId, useWebsocket=True) # Websocket SigV4を利用
+    mqttclient.configureIAMCredentials(accessId, secretKey)
+    mqttclient.configureCredentials(rootCA) # ルート証明書の設定が必要
+    mqttclient.configureEndpoint(endPoint, mqttport)
+    mqttclient.configureAutoReconnectBackoffTime(1, 32, 20)
+    mqttclient.configureOfflinePublishQueueing(-1)
+    mqttclient.configureDrainingFrequency(2)
+    mqttclient.configureConnectDisconnectTimeout(10)
+    mqttclient.configureMQTTOperationTimeout(5)
+    mqttclient.connect()
+    print("onConnect")
+    mqttclient.subscribe(topic, 1, onSubscribe)
     while True:
         time.sleep(5)
 

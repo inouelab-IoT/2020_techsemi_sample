@@ -7,7 +7,8 @@ import os
 from ast import literal_eval
 
 # file open
-MQTT_FILE = "../002_AWSIoT/aws_iot_mqtt.json"
+gcpusername = "YOURE_GCP_USER_NAME" #GCPのユーザ名
+MQTT_FILE = "home/"+ gcpusername + "/002_AWSIoT/aws_iot_mqtt.json"
 mqtt_broker = open(MQTT_FILE).read()
 mqtt_dict = literal_eval(mqtt_broker)
 
@@ -18,7 +19,7 @@ secretKey = mqtt_dict['SECRET_KEY']
 
 try:
     bucketname = "ediot"
-    KeyPrefix = clientId
+    KeyPrefix = clientId + "/"
     resource = boto3.resource(
         's3',
         region_name='ap-northeast-1',
